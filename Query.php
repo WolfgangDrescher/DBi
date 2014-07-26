@@ -11,6 +11,7 @@ require_once 'DBi.php';
 class Query {
 	
 	public static $throwExceptions = true;
+	public static $autoSend = false;
 	
 	private $sql = '';
 	private $duration = 0;
@@ -23,7 +24,9 @@ class Query {
 	public function __construct($sql, $connection = null) {
 		$this->setSql($sql);
 		$this->setConnection($connection);
-		$this->send();
+		if(self::$autoSend === true) {
+			$this->send();
+		}
 	}
 	
 	public function __destruct() {

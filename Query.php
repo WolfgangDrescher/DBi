@@ -8,6 +8,8 @@
 
 require_once 'DBi.php';
 
+class QueryException extends Exception {}
+
 class Query {
 	
 	public static $throwExceptions = true;
@@ -39,23 +41,19 @@ class Query {
 		ob_start();
 		echo "\n";
 		echo '<div class="panel panel-default">'."\n";
-		echo '	<div class="panel-heading"><h3 class="panel-title">PANEL HEADING WITH TITLE</h3></div>'."\n";
+		// echo '	<div class="panel-heading"><h3 class="panel-title">Panel title</h3></div>'."\n";
 		echo '	<div class="panel-body">'."\n";
 		echo '		<div><pre>'.htmlentities($this->getSql()).'</pre></div>'."\n";
-		if($this->isError()) {
-			// echo error
-		} else {
-			$cols = $this->getResult()->fetch_fields();
-			$tables = array();
-			foreach($cols as $value) {
-				if(!in_array($value->orgtable, $tables)) {
-					$tables[] = $value->orgtable;
-				}
+		$cols = $this->isError() ? array() : $this->getResult()->fetch_fields();
+		$tables = array();
+		foreach($cols as $value) {
+			if(!in_array($value->orgtable, $tables)) {
+				$tables[] = $value->orgtable;
 			}
-			echo '		<div>Affected rows: ' . $this->rows() . "</div>\n";
-			echo '		<div>Duration: ' . $this->getDuration(7) * 1000 . " milliseconds</div>\n";
-			echo '		<div>Affected tables: <code>'.implode('</code>, <code>', $tables)."</code></div>\n";
 		}
+		echo '		<div>Affected rows: ' . $this->rows() . "</div>\n";
+		echo '		<div>Duration: ' . $this->getDuration(7) * 1000 . " milliseconds</div>\n";
+		echo '		<div>Affected tables: <code>'.implode('</code>, <code>', $tables)."</code></div>\n";
 		echo '	</div>'."\n";
 		if($this->rows() > 0) {
 			echo '	<div class="table-responsive" style="overflow-x: auto;">'."\n";
@@ -207,7 +205,7 @@ class Query {
 	function send($params = null) {
 		try {
 			if(!DBi::isConnection($this->getConnection())) {
-				throw new Exception('No MySQLi connection available.');
+				throw new DBiException('The selected MySQLi connection could not be used.');
 			}
 			$timestart = microtime(true);
 			$result = $this->getConnection()->query($this->getSql());
@@ -216,17 +214,29 @@ class Query {
 			if($this->isError()) {
 				$this->setError($this->getConnection()->error);
 				$this->setErrno($this->getConnection()->errno);
-				throw new Exception($this->getError(), $this->getErrno());
+				throw new QueryException($this->getError(), $this->getErrno());
 			}
-			
-		} catch(Exception $e) {
+		} catch(DBiException $e) {
 			if(self::$throwExceptions === true) {
-				ob_start();
 				echo '<div class="alert alert-danger">';
-				echo $e->getMessage();
-				echo '<pre>'.htmlentities($this->getSql()).'</pre>';
+				echo htmlentities($e->getMessage());
 				echo '</div>';
-				echo ob_get_clean();
+			}
+		} catch(QueryException $e) {
+			if(self::$throwExceptions === true) {
+				echo '<div class="panel panel-danger">'."\n";
+				echo '	<div class="panel-heading"><b>MySQL-Error</b> (#'.htmlentities($this->getErrno()).')</div>'."\n";
+				echo '	<div class="panel-body">'."\n";
+				echo '		<p>'.htmlentities($this->getError()).'</p>'."\n";
+				$lines = preg_split('/((\r?\n)|(\r\n?))/', $this->getSql());
+				preg_match('/at line (\d+)$/', $this->getError(), $matches);
+				$atLine = isset($matches[1]) ? intval($matches[1]) - 1 : null;
+				if(isset($lines[$atLine])) {
+					$lines[$atLine] = '<mark>'.$lines[$atLine].'</mark>';
+				}
+				echo '		<pre>'.implode(PHP_EOL, $lines).'</pre>'."\n";  // htmlentities
+				echo '	</div>'."\n";
+				echo '</div>'."\n";
 			}
 		}
 	}

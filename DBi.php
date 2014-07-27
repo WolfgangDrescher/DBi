@@ -9,6 +9,8 @@
 
 require_once 'Query.php';
 
+class DBiException extends Exception {}
+
 class DBi {
 	
 	public static $autoSelect = true;
@@ -19,11 +21,11 @@ class DBi {
 		try {
 			$connection = @new MySQLi($host, $user, $password, $dbname, $port);
 			if($connection->connect_errno) {
-				throw new Exception($connection->connect_error, $connection->connect_errno);
+				throw new DBiException($connection->connect_error, $connection->connect_errno);
 			} else {
 				return $connection;
 			}
-		} catch (Exception $e) {
+		} catch (DBiException $e) {
 			ob_start();
 			echo '<div class="alert alert-danger">';
 			echo "<b>Unable to connect to the MySQL database '$dbname'</b> (#" . $e->getCode() . ").<br/>";
@@ -93,7 +95,7 @@ class DBi {
 		} elseif(self::isConnection(self::get())) {
 			return self::get()->real_escape_string($var);
 		}
-		// at least do something... (throw Exception)
+		// at least do something... (throw DBiException)
 		return mysql_escape_string($var);
 	}
 	

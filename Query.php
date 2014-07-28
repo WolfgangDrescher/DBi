@@ -98,6 +98,7 @@ class Query {
 	
 	public function setSql($sql) {
 		$this->sql = trim($sql);
+		return $this;
 	}
 	
 	public function getDuration($decimals = null) {
@@ -157,6 +158,7 @@ class Query {
 		} else {
 			$this->connection = null;
 		}
+		return $this;
 	}
 	
 	public function isError() {
@@ -271,6 +273,7 @@ class Query {
 			'value' => $this->getParamValue($value, $type),
 			'type' => $this->getParamType($value, $type)
 		);
+		return $this;
 	}
 	
 	public function bindParams() {
@@ -279,6 +282,7 @@ class Query {
 				$this->bindParam($key, $value);
 			}
 		}
+		return $this;
 	}
 	
 	public function bindResult(&$a = null, &$b = null, &$c = null, &$d = null, &$e = null, &$f = null, &$g = null, &$h = null, &$i = null, &$vj = null, &$k = null, &$l = null, &$m = null, &$n = null, &$o = null, &$p = null, &$q = null, &$r = null, &$s = null, &$t = null, &$u = null, &$v = null, &$w = null, &$x = null, &$y = null, &$z = null) {
@@ -287,11 +291,13 @@ class Query {
 		foreach($args as $key => & $value) {
 			$this->boundResult[] = & $value;
 		}
+		return $this;
 	}
 	
 	public function prepare($sql, $params = null) {
 		$this->setSql($sql);
 		$this->bindParams($params);
+		return $this;
 	}
 	
 	private function parseSql() {
@@ -374,6 +380,7 @@ class Query {
 				echo '</div>'."\n";
 			}
 		}
+		return $this;
 	}
 	
 	public function getJSON($type = 'assoc') {

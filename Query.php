@@ -20,7 +20,7 @@ class Query {
 	private $connection = null;
 	private $result = null;
 	private $statement = null;
-	private $errno = 0;
+	private $errno = null;
 	private $error = '';
 	private $boundParams = array();
 	private $boundResult = array();

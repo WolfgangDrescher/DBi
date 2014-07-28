@@ -376,13 +376,8 @@ class Query {
 		}
 	}
 	
-	public function returnJSON($quotes = false, $type = 'assoc') {
-		$json = json_encode($this->fetchAll($type));
-		return $quotes === true ? '\''.$json.'\'' : $json;
-	}
-	
-	public function echoJSON($quotes = false, $type = 'assoc') {
-		echo $this->returnJSON($quotes, $type);
+	public function getJSON($type = 'assoc') {
+		return json_encode($this->fetchAll($type), JSON_PRETTY_PRINT);
 	}
 	
 }

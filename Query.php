@@ -107,7 +107,7 @@ class Query {
 		return number_format($this->duration, $decimals);
 	}
 	
-	public function setDuration($duration) {
+	private function setDuration($duration) {
 		$this->duration = $duration;
 	}
 	
@@ -115,7 +115,7 @@ class Query {
 		return $this->result;
 	}
 	
-	public function setResult($result) {
+	private function setResult($result) {
 		$this->result = $result;
 	}
 	
@@ -123,7 +123,7 @@ class Query {
 		return $this->statement;
 	}
 	
-	public function setStatement($statement) {
+	private function setStatement($statement) {
 		$this->statement = $statement;
 	}
 	
@@ -131,7 +131,7 @@ class Query {
 		return $this->errno;
 	}
 	
-	public function setErrno($errno) {
+	private function setErrno($errno) {
 		$this->errno = intval($errno);
 	}
 	
@@ -139,7 +139,7 @@ class Query {
 		return $this->error;
 	}
 	
-	public function setError($error) {
+	private function setError($error) {
 		$this->error = $error;
 	}
 	

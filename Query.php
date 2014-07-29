@@ -269,7 +269,7 @@ class Query {
 	
 	public function bindParam($key, $value, $type = null) {
 		$this->boundParams[] = array(
-			'key' => is_string($key) ? ':'.trim($key, ':') : null,
+			'key' => is_string($key) ? ':'.trim($key, ':') : '?',
 			'value' => $this->getParamValue($value, $type),
 			'type' => $this->getParamType($value, $type)
 		);

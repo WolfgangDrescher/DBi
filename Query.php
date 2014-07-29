@@ -111,10 +111,7 @@ class Query {
 	}
 	
 	public function getDuration($decimals = null) {
-		if($decimals === null) {
-			return $this->duration;
-		}
-		return number_format($this->duration, $decimals);
+		return $decimals === null ? $this->duration : number_format($this->duration, $decimals);
 	}
 	
 	private function setDuration($duration) {

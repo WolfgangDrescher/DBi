@@ -30,6 +30,10 @@ class Query {
 	const PARAM_FLOAT = 'd';
 	const PARAM_BLOB = 'b';
 	
+	public static function init($sql = null, $params = null, $connection = null) {
+		return new self($sql, $params, $connection);
+	}
+	
 	public function __construct($sql = null, $params = null, $connection = null) {
 		$this->prepare($sql);
 		$this->bindParams($params);

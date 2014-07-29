@@ -365,7 +365,7 @@ class Query {
 			$this->setError($e->getMessage());
 			$this->setErrno($e->getCode());
 			if(self::$throwExceptions === true) {
-				echo '<div class="alert alert-danger">'.$e->getMessage().'</div>';
+				echo '<div class="alert alert-danger"><span class="glyphicon glyphicon-warning-sign fa fa-database"></span> '.$e->getMessage().'</div>';
 			}
 		} catch(Exception $e) { // catch QueryException and MySQLi_SQL_Exception 
 			// if($e instanceof MySQLi_SQL_Exception) {
@@ -374,7 +374,7 @@ class Query {
 			// }
 			if(self::$throwExceptions === true) {
 				echo '<div class="panel panel-danger">'."\n";
-				echo '	<div class="panel-heading"><b>MySQLi-Error</b> (#'.$this->getErrno().')</div>'."\n";
+				echo '	<div class="panel-heading"><span class="glyphicon glyphicon-warning-sign fa fa-bug fa-spin"></span> <b>MySQLi-Error</b> (#'.$this->getErrno().')</div>'."\n";
 				echo '	<div class="panel-body">'."\n";
 				echo '		<p>'.$this->getError().'</p>'."\n";
 				$lines = preg_split('/((\r?\n)|(\r\n?))/', $this->parseSql());

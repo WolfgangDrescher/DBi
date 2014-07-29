@@ -32,7 +32,7 @@ class DBi {
 			}
 		} catch (Exception $e) { // catch DBiException and MySQLi_SQL_Exception 
 			ob_start();
-			echo '<div class="alert alert-danger">';
+			echo '<div class="alert alert-danger"><span class="glyphicon glyphicon-warning-sign fa fa-exclamation-triangle"></span> ';
 			echo '<b>Unable to connect to MySQL database</b> (#' . $e->getCode() . ')<br/>';
 			echo '<i>' . $e->getMessage() . '</i>';
 			echo '</div>';

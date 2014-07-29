@@ -60,7 +60,7 @@ class Query {
 		echo '<div class="panel panel-default">'."\n";
 		echo '	<div class="panel-body">'."\n";
 		echo '		<div><pre class="pre-scrollable">'.htmlentities($this->getSql()).'</pre></div>'."\n";
-		$cols = $this->isError() ? array() : $this->getStatement()->result_metadata()->fetch_fields();
+		$cols = (!$this->isError() AND method_exists($this->getStatement()->result_metadata(), 'fetch_fields')) ? $this->getStatement()->result_metadata()->fetch_fields() : array();
 		$tables = array();
 		foreach($cols as $value) {
 			if(!in_array($value->orgtable, $tables)) {

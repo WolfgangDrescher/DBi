@@ -17,18 +17,23 @@ class DBi {
 	private static $databases = array();
 	private static $currentConnection = null;
 	
-	public static function connect($host, $user = null, $password = null, $dbname = null, $port = null) {
+	public static function connect($host, $user, $password, $dbname, $port = null) {
 		try {
-			$connection = @new MySQLi($host, $user, $password, $dbname, $port);
-			if($connection->connect_errno) {
-				throw new DBiException($connection->connect_error, $connection->connect_errno);
+			if(!isset($host, $user, $password, $dbname)) {
+				throw new DBiException('Missing arguments for '.__CLASS__.'::connect($host, $user, $password, $dbname, $port = null).', -1);
 			} else {
-				return $connection;
+				mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+				$connection = new MySQLi($host, $user, $password, $dbname, $port);
+				if(!($connection->connect_errno === 0)) {
+					throw new DBiException($connection->connect_error, $connection->connect_errno);	
+				} else {
+					return $connection;
+				}
 			}
-		} catch (DBiException $e) {
+		} catch (Exception $e) { // catch DBiException and MySQLi_SQL_Exception 
 			ob_start();
 			echo '<div class="alert alert-danger">';
-			echo "<b>Unable to connect to the MySQL database '$dbname'</b> (#" . $e->getCode() . ").<br/>";
+			echo '<b>Unable to connect to MySQL database</b> (#' . $e->getCode() . ')<br/>';
 			echo '<i>' . $e->getMessage() . '</i>';
 			echo '</div>';
 			die(ob_get_clean());

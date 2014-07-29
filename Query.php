@@ -34,6 +34,11 @@ class Query {
 		return new self($sql, $params, $connection);
 	}
 	
+	public static function exec($sql = null, $params = null, $connection = null) {
+		$instance = new self($sql, $params, $connection);
+		return self::$autoSend === true ? $instance : $instance->send();
+	}
+	
 	public function __construct($sql = null, $params = null, $connection = null) {
 		$this->prepare($sql);
 		$this->bindParams($params);

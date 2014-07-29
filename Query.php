@@ -296,9 +296,8 @@ class Query {
 	}
 	
 	public function bindResult(&$a = null, &$b = null, &$c = null, &$d = null, &$e = null, &$f = null, &$g = null, &$h = null, &$i = null, &$vj = null, &$k = null, &$l = null, &$m = null, &$n = null, &$o = null, &$p = null, &$q = null, &$r = null, &$s = null, &$t = null, &$u = null, &$v = null, &$w = null, &$x = null, &$y = null, &$z = null) {
-		$trace = debug_backtrace();
-		$args = $trace[0]['args'];
-		foreach($args as $key => & $value) {
+		$trace = debug_backtrace(false);
+		foreach(isset($trace[0]['args']) ? $trace[0]['args'] : array() as & $value) {
 			$this->boundResult[] = & $value;
 		}
 		return $this;

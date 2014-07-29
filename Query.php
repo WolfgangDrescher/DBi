@@ -228,9 +228,9 @@ class Query {
 		) : null;
 	}
 	
-	public function fetchObject() {
+	public function fetchObject($className = 'stdClass') {
 		if($this->isError()) return false;
-		$row = new stdClass;
+		$row = new $className;
 		foreach($this->getStatement()->result_metadata()->fetch_fields() as $field) {
 			$params[] = & $row->{$field->name};
 		}

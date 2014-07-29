@@ -228,9 +228,10 @@ class Query {
 		) : null;
 	}
 	
-	public function fetchObject($className = 'stdClass') {
+	public function fetchObject($className = 'stdClass', $classParams = array()) {
 		if($this->isError()) return false;
-		$row = new $className;
+		$reflectionObject = new ReflectionClass($className);
+		$row = $reflectionObject->newInstanceArgs($classParams);
 		foreach($this->getStatement()->result_metadata()->fetch_fields() as $field) {
 			$params[] = & $row->{$field->name};
 		}

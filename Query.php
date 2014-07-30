@@ -54,9 +54,10 @@ class Query {
 		}
 	}
 	
-	// Closes a prepared statement 
+	// Closes a prepared statement and frees stored result memory
 	public function __destruct() {
 		if(!$this->isError()) {
+			$this->getStatement()->free_result();
 			$this->getStatement()->close();
 		}
 	}

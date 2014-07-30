@@ -77,7 +77,7 @@ Use SQL strings like these examples:
 
 	$sqlNamedParams = "SELECT * FROM user WHERE email = :email LIMIT :limit";
 	$sqlParams = "SELECT * FROM user WHERE email = ? LIMIT ?";
-	$sql = "SELECT * FROM user WHERE email = '".DBi::e($userId)."' LIMIT ".intval($limit);
+	$sql = "SELECT * FROM user WHERE email = '".DBi::e($email)."' LIMIT ".intval($limit);
 	$insertSql = "INSERT INTO user SET email = :email";
 
 However I recommend **always** using prepared statements like `$sqlNamedParams` and `$sqlParams`. But if you know what you are doing use `DBi::escape($str[, $connection])` or its shortcut `DBi::e()` to `mysqli_real_escape_string`. You can also write your own function for escaping:
@@ -86,7 +86,7 @@ However I recommend **always** using prepared statements like `$sqlNamedParams` 
 		return call_user_func_array('DBi::escape', func_get_args());
 	}
 
-Use `->prepare()` to set the SQL string. Bind named parameters as array with `->bindParams()`. This method will autodetect the type of the passed parameters (string, int, float). Execute a statement with `->send()`. The colons in front of the named parameters in `->bindResult` are optional but they are required in the SQL string.
+Use `->prepare()` to set the SQL string. Bind named parameters as array with `->bindParams()`. This method will autodetect the type of the passed parameters (string, int, float). Execute a statement with `->send()`. The colons in front of the named parameters in `->bindParams()` are optional but they are required in the SQL string.
 
 	$stmt = new Query();
 	$stmt->prepare($sqlNamedParams);
@@ -118,7 +118,7 @@ The SQL string can also be passed as first argument of `new Query($sql)`. Bind p
 
 Bind a single parameter with `->bindParam()`. The first argument is the key of the named parameter in the SQL string, the second is the value, and the optional third will set the type (`Query::PARAM_STR`, `Query::PARAM_INT`, `Query::PARAM_FLOAT` and `Query::PARAM_BLOB`). If the third parameter is not set the method will autodetect the value's type.
 
-	$stmt->bindParam('email', $email, Query::PARAMS_STR);
+	$stmt->bindParam('email', $email, Query::PARAM_STR);
 	$stmt->bindParam(':limit', 1); // autodetects type Query::PARAM_INT
 	// $stmt->bindParam(':file', $_FILES['img']['tmp_name'], Query::PARAM_BLOB);
 
@@ -153,7 +153,7 @@ Set the static variable `Query::$autoSend` to true if you want to execute a stat
 
 Get the duration of a statement with `->getDuration()` (in seconds). You can set the number of decimal points as an argument.
 
-	echo $stmt->getDuration(5) // echo's seconds
+	echo $stmt->getDuration(5); // echo's seconds
 
 Set the result pointer of the result stack with `->seek($index)`.
 
@@ -180,7 +180,7 @@ Use `->fetchArray()` if you need a combined associative and enumerated array. Pa
 
 `->fetchVar()` will set all variables bound with `->bindResult()` to the columns of the current result row.
 
-	$stmt = new Query::exec("SELECT id, name, email FROM user");
+	$stmt = Query::exec("SELECT id, name, email FROM user");
 	$stmt->bindResult($id, $name, $email);
 	while($stmt->fetch()) {
 		echo "User-ID: $id, Name: $name, E-Mail: $email.";
@@ -188,7 +188,7 @@ Use `->fetchArray()` if you need a combined associative and enumerated array. Pa
 
 Note that `->bindResult(&$a,...&$z)` currently only supports 26 arguments, because I could not find another way to pass references to the class. If you need support for more parameters or want to make it the proper way use the native MySQLi functions for this. See issue #4.
 
-	$stmt = new Query::exec("SELECT id, name, email FROM user");
+	$stmt = Query::exec("SELECT id, name, email FROM user");
 	$stmt->getStatement()->bind_result($id, $name, $email);
 	while($stmt->getStatement()->fetch()) {
 		echo "User-ID: $id, Name: $name, E-Mail: $email.";

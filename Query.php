@@ -319,7 +319,8 @@ class Query {
 	// Binds variables to the result for later use of ->fetchVar()
 	public function bindResult(&$a = null, &$b = null, &$c = null, &$d = null, &$e = null, &$f = null, &$g = null, &$h = null, &$i = null, &$vj = null, &$k = null, &$l = null, &$m = null, &$n = null, &$o = null, &$p = null, &$q = null, &$r = null, &$s = null, &$t = null, &$u = null, &$v = null, &$w = null, &$x = null, &$y = null, &$z = null) {
 		$trace = debug_backtrace(false);
-		foreach(isset($trace[0]['args']) ? $trace[0]['args'] : array() as & $value) {
+		$args = isset($trace[0]['args']) ? $trace[0]['args'] : array();
+		foreach($args as & $value) {
 			$this->boundResult[] = & $value;
 		}
 		return $this;
@@ -343,12 +344,12 @@ class Query {
 		$params = $this->boundParams;
 		if(preg_match_all('/(:\w+|\?)/is', $this->getSql(), $matches)) {
 			foreach($matches[0] as $value) {
-				$foundKey = array_search($value, array_column($params, 'key')); // 5.5.0
-				// $foundKey = array_search($value, array_map(function($element) { return $element['key'] }, $a)); // 5.3.0
-				if($foundKey !== false) {
-					$array[0] .= $params[$foundKey]['type'];
-					$array[] = & $params[$foundKey]['value'];
-					unset($params[$foundKey]);
+				// $keyIndex = array_search($value, array_column($params, 'key')); // 5.5
+				$keyIndex = array_search($value, array_map(function($element) { return $element['key']; }, $params)); // 5.3
+				if($keyIndex !== false) {
+					$array[0] .= $params[$keyIndex]['type'];
+					$array[] = & $params[$keyIndex]['value'];
+					unset($params[$keyIndex]);
 					$params = array_values($params);
 				} else {
 					throw new QueryException('No named parameter <code>'.($value).'</code> was bound to the SQL statement.', -1);

@@ -247,7 +247,7 @@ class Query {
 	public function fetchObject($className = 'stdClass', $classParams = array()) {
 		if($this->isError()) return false;
 		$reflectionObject = new ReflectionClass($className);
-		$row = $reflectionObject->newInstanceArgs($classParams);
+		$row = (count($classParams) AND method_exists($className, '__construct')) ? $reflectionObject->newInstanceArgs($classParams) : $reflectionObject->newInstance();
 		foreach($this->getStatement()->result_metadata()->fetch_fields() as $field) {
 			$params[] = & $row->{$field->name};
 		}

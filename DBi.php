@@ -17,18 +17,16 @@ class DBi {
 	private static $databases = array();
 	private static $currentConnection = null;
 	
-	public static function connect($host, $user, $password, $dbname, $port = null) {
+	// Connects to a database with MySQLi
+	public static function connect($host = null, $user = null, $password = null, $dbname = null, $port = null) {
 		try {
-			if(!isset($host, $user, $password, $dbname)) {
-				throw new DBiException('Missing arguments for '.__CLASS__.'::connect($host, $user, $password, $dbname, $port = null).', -1);
+			mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+			$connection = new MySQLi($host, $user, $password, $dbname, $port);
+			$connection->select_db($dbname);
+			if(!($connection->connect_errno === 0)) {
+				throw new DBiException($connection->connect_error, $connection->connect_errno);	
 			} else {
-				mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-				$connection = new MySQLi($host, $user, $password, $dbname, $port);
-				if(!($connection->connect_errno === 0)) {
-					throw new DBiException($connection->connect_error, $connection->connect_errno);	
-				} else {
-					return $connection;
-				}
+				return $connection;
 			}
 		} catch (Exception $e) { // catch DBiException and MySQLi_SQL_Exception 
 			ob_start();

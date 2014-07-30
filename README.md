@@ -182,7 +182,7 @@ Use `->fetchArray()` if you need a combined associative and enumerated array. Pa
 
 	$stmt = new Query::exec("SELECT id, name, email FROM user");
 	$stmt->bindResult($id, $name, $email);
-	while($this->fetch()) {
+	while($stmt->fetch()) {
 		echo "User-ID: $id, Name: $name, E-Mail: $email.";
 	}
 
@@ -190,7 +190,7 @@ Note that `->bindResult(&$a,...&$z)` currently only supports 26 arguments, becau
 
 	$stmt = new Query::exec("SELECT id, name, email FROM user");
 	$stmt->getStatement()->bind_result($id, $name, $email);
-	while($this->getStatement()->fetch()) {
+	while($stmt->getStatement()->fetch()) {
 		echo "User-ID: $id, Name: $name, E-Mail: $email.";
 	}
 

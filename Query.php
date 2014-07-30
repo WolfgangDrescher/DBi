@@ -1,10 +1,12 @@
 <?php
 
-/**
- * Query.php
- * Wolfgang Drescher - wolfgangdrescher.ch
- * This class allows you to send queries to a database with the PHP MySQLi class.
- */
+/*!
+---
+Query.php
+Wolfgang Drescher - wolfgangdrescher.ch
+This class allows you to send queries to a database with the PHP MySQLi class.
+...
+*/
 
 require_once 'DBi.php';
 
@@ -12,6 +14,7 @@ class QueryException extends Exception {}
 
 class Query {
 	
+	// Public variables for class settings
 	public static $throwExceptions = true;
 	public static $autoSend = false;
 	
@@ -30,15 +33,18 @@ class Query {
 	const PARAM_FLOAT = 'd';
 	const PARAM_BLOB = 'b';
 	
+	// Returns new self as an object to enable method chaining in one line
 	public static function init($sql = null, $params = null, $connection = null) {
 		return new self($sql, $params, $connection);
 	}
 	
+	// Executes queries instantly without considering the value of Query::$autoSend 
 	public static function exec($sql = null, $params = null, $connection = null) {
 		$instance = new self($sql, $params, $connection);
 		return self::$autoSend === true ? $instance : $instance->send();
 	}
 	
+	// Passes all arguments for preparing a statement and sends query if Query::$autoSend is true
 	public function __construct($sql = null, $params = null, $connection = null) {
 		$this->prepare($sql);
 		$this->bindParams($params);
@@ -48,12 +54,14 @@ class Query {
 		}
 	}
 	
+	// Closes a prepared statement 
 	public function __destruct() {
 		if(!$this->isError()) {
 			$this->getStatement()->close();
 		}
 	}
 	
+	// Displays the result of a statement as table by echoing the query object itself
 	public function __toString() {
 		ob_start();
 		echo "\n";
@@ -154,6 +162,7 @@ class Query {
 		return $this->connection;
 	}
 	
+	// MySQLi connection object, string or null can be passed to set the connection
 	public function setConnection($connection) {
 		if(DBi::isConnection($connection)) {
 			$this->connection = $connection;
@@ -171,18 +180,22 @@ class Query {
 		return $this->getErrno() === 0 ? false : true;
 	}
 	
+	// Returns the auto generated id used in the last query
 	public function insertId() {
 		return $this->isError() ? null : intval($this->getConnection()->insert_id);
 	}
 	
+	// Returns the number of rows in a result
 	public function rows() {
 		return $this->isError() ? null : $this->getStatement()->num_rows;
 	}
 	
+	// Sets the result pointer to an arbitrary row in the result
  	public function seek($rec = 0) {
 		return $this->isError() ? null : $this->getStatement()->data_seek($rec);
 	}
 	
+	// Fetches the result whereas the default is ->fetchArray() or ->fetchVar() if result parameters are bound
 	public function fetch($mode = null) {
 		if($mode == 'row' OR $mode == 'num') {
 			return $this->fetchRow();
@@ -198,20 +211,24 @@ class Query {
 		return count($this->boundResult) ? $this->fetchVar() : $this->fetchAssoc();
 	}
 	
+	// Passes the columns of the current row to the bound result variables
 	public function fetchVar() {
 		if($this->isError()) return false;
 		call_user_func_array(array($this->getStatement(), 'bind_result'), $this->boundResult);
 		return $this->getStatement()->fetch();
 	}
 	
+	// Returns the current row as an associative array
 	public function fetchAssoc() {
 		return $this->fetchArray('assoc');
 	}
 	
+	// Returns the current row as an enumerated array
 	public function fetchRow() {
 		return $this->fetchArray('row');
 	}
 	
+	// Returns the current row as an array (associative, enumerated or both)
 	public function fetchArray($type = 'both') {
 		if($this->isError()) return false;
 		foreach($this->getStatement()->result_metadata()->fetch_fields() as $field) {
@@ -225,6 +242,7 @@ class Query {
 		) : null;
 	}
 	
+	// Returns the current row of a result set as an object
 	public function fetchObject($className = 'stdClass', $classParams = array()) {
 		if($this->isError()) return false;
 		$reflectionObject = new ReflectionClass($className);
@@ -236,6 +254,7 @@ class Query {
 		return $this->getStatement()->fetch() ? $row : null;
 	}
 	
+	// Returns an array with the complete result
 	public function fetchAll($type = 'assoc') {
 		if($this->isError()) return false;
 		$data = array();
@@ -247,6 +266,7 @@ class Query {
 		return $data;
 	}
 	
+	// Returns the value of a bound parameter converted to the variable type
 	private function getParamValue($value, $type) {
 		$type = $this->getParamType($value, $type);
 		if($type == self::PARAM_STR) {
@@ -259,6 +279,7 @@ class Query {
 		return $value;
 	}
 	
+	// Returns the type of a bound parameter
 	private function getParamType($value, $type) {
 		if($type === null OR !in_array($type, array(self::PARAM_STR, self::PARAM_INT, self::PARAM_FLOAT, self::PARAM_BLOB), $type)) {
 			if(is_string($value)) {
@@ -274,6 +295,7 @@ class Query {
 		return self::PARAM_STR;
 	}
 	
+	// Binds a parameter to the class object
 	public function bindParam($key, $value, $type = null) {
 		$this->boundParams[] = array(
 			'key' => is_string($key) ? ':'.trim($key, ':') : '?',
@@ -283,6 +305,7 @@ class Query {
 		return $this;
 	}
 	
+	// Binds multiple parameters to the class object
 	public function bindParams() {
 		if(func_num_args() > 1 OR func_get_arg(0) !== null) {
 			foreach(is_array(func_get_arg(0)) ? func_get_arg(0) : func_get_args() as $key => $value) {
@@ -292,6 +315,7 @@ class Query {
 		return $this;
 	}
 	
+	// Binds variables to the result for later use of ->fetchVar()
 	public function bindResult(&$a = null, &$b = null, &$c = null, &$d = null, &$e = null, &$f = null, &$g = null, &$h = null, &$i = null, &$vj = null, &$k = null, &$l = null, &$m = null, &$n = null, &$o = null, &$p = null, &$q = null, &$r = null, &$s = null, &$t = null, &$u = null, &$v = null, &$w = null, &$x = null, &$y = null, &$z = null) {
 		$trace = debug_backtrace(false);
 		foreach(isset($trace[0]['args']) ? $trace[0]['args'] : array() as & $value) {
@@ -300,16 +324,19 @@ class Query {
 		return $this;
 	}
 	
+	// Sets the SQL string and binds parameters
 	public function prepare($sql, $params = null) {
 		$this->setSql($sql);
 		$this->bindParams($params);
 		return $this;
 	}
 	
+	// Replaces all named parameters with `?`
 	private function parseSql() {
 		return preg_replace('/(:\w+)/is', '?', $this->getSql());
 	}
 	
+	// Returns an array with the bound parameters in correct order for usage with ->parseSql()
 	private function parseNamedParams() {
 		$array = array('');
 		$params = $this->boundParams;
@@ -330,6 +357,7 @@ class Query {
 		return count($array) > 1 ? $array : null;
 	}
 	
+	// Executes a query and throws error messages
 	public function send($params = null) {
 		$this->bindParams($params);
 		try {
@@ -365,10 +393,8 @@ class Query {
 				echo '<div class="alert alert-danger"><span class="glyphicon glyphicon-warning-sign fa fa-database"></span> '.$e->getMessage().'</div>';
 			}
 		} catch(Exception $e) { // catch QueryException and MySQLi_SQL_Exception 
-			// if($e instanceof MySQLi_SQL_Exception) {
-				$this->setError($e->getMessage());
-				$this->setErrno($e->getCode());
-			// }
+			$this->setError($e->getMessage());
+			$this->setErrno($e->getCode());
 			if(self::$throwExceptions === true) {
 				echo '<div class="panel panel-danger">'."\n";
 				echo '	<div class="panel-heading"><span class="glyphicon glyphicon-warning-sign fa fa-bug fa-spin"></span> <b>MySQLi-Error</b> (#'.$this->getErrno().')</div>'."\n";
@@ -389,6 +415,7 @@ class Query {
 		return $this;
 	}
 	
+	// Returns the complete result as a JSON string
 	public function getJSON($type = 'assoc') {
 		return json_encode($this->fetchAll($type), JSON_PRETTY_PRINT);
 	}

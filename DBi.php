@@ -1,11 +1,13 @@
 <?php
 
-/**
- * DBi.php
- * Wolfgang Drescher - wolfgangdrescher.ch
- * This class allows you to connect to a MySQL database with the PHP MySQLi class
- * and handles multiple connections.
- */
+/*!
+---
+DBi.php
+Wolfgang Drescher - wolfgangdrescher.ch
+This class allows you to connect to a MySQL database with the PHP MySQLi class
+and handles multiple connections.
+...
+*/
 
 require_once 'Query.php';
 

@@ -153,7 +153,7 @@ Set the static variable `Query::$autoSend` to true if you want to execute a stat
 
 Get the duration of a statement with `->getDuration()` (in milliseconds). You can set the number of decimal points as an argument.
 
-	echo $stmt->getDuration(5); // echo's seconds
+	echo $stmt->getDuration(5); // echo's milliseconds
 
 Set the result pointer of the result stack with `->seek($index)`.
 

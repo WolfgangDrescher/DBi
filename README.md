@@ -11,7 +11,7 @@ Features
 - Prepared statements
 - Named parameters
 - Echoing the query object will display a table with results
-- Method chaining e.g. `Query::init()->send()`
+- Method chaining e.g. `$id = Query::init($insertSql)->send()->insertId();`
 - Execute statements instantly with `Query::exec()`
 - Nicely designed error messages with Bootstrap
 

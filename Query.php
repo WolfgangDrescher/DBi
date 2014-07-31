@@ -283,7 +283,7 @@ class Query {
 	
 	// Returns the type of a bound parameter
 	private function getParamType($value, $type) {
-		if($type === null OR !in_array($type, array(self::PARAM_STR, self::PARAM_INT, self::PARAM_FLOAT, self::PARAM_BLOB), $type)) {
+		if($type === null OR !in_array($type, array(self::PARAM_STR, self::PARAM_INT, self::PARAM_FLOAT, self::PARAM_BLOB))) {
 			if(is_string($value)) {
 				return self::PARAM_STR;
 			} elseif(is_int($value)) {
@@ -349,7 +349,11 @@ class Query {
 				$keyIndex = array_search($value, array_map(function($element) { return $element['key']; }, $params)); // 5.3
 				if($keyIndex !== false) {
 					$array[0] .= $params[$keyIndex]['type'];
-					$array[] = & $params[$keyIndex]['value'];
+					if($params[$keyIndex]['type'] == self::PARAM_BLOB) {
+						$array[] = null;
+					} else {
+						$array[] =  & $params[$keyIndex]['value'];
+					}
 					unset($params[$keyIndex]);
 					$params = array_values($params);
 				} else {
@@ -358,6 +362,25 @@ class Query {
 			}
 		}
 		return count($array) > 1 ? $array : null;
+	}
+	
+	// Finds params of type `blob` and sends long data to the database 
+	private function sendLongData() {
+		$params = $this->boundParams;
+		if(preg_match_all('/(:\w+|\?)/is', $this->getSql(), $matches)) {
+			foreach($matches[0] as $key => $value) {
+				$keyIndex = array_search($value, array_map(function($element) { return $element['key']; }, $params)); // 5.3
+				if($keyIndex !== false) {
+					if($params[$keyIndex]['type'] == self::PARAM_BLOB) {
+						$paramValue = $params[$keyIndex]['value'];
+						if(file_exists($paramValue) AND ($content = file_get_contents($paramValue)) !== false) {
+							$paramValue = $content;
+						}
+						$this->getStatement()->send_long_data($key, $paramValue);
+					}
+				}
+			}
+		}
 	}
 	
 	// Executes a query and throws error messages
@@ -373,6 +396,7 @@ class Query {
 			if($this->parseNamedParams()) {
 				if(count($this->parseNamedParams()) - 1 >= $this->getStatement()->param_count) {
 					call_user_func_array(array($this->getStatement(), 'bind_param'), $this->parseNamedParams());
+					$this->sendLongData();
 				} else {
 					throw new QueryException('Number of variables does not match number of parameters in prepared statement.', -1);
 				}

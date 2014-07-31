@@ -73,7 +73,7 @@ class DBi {
 			} elseif(count(self::$databases) === 1) {
 				return array_shift(array_values(self::$databases));
 			}
-		} else {
+		} elseif(is_string($key) OR is_int($key)) {
 			if(array_key_exists($key, self::$databases)) {
 				return self::$databases[$key];
 			} elseif(is_int($key) AND array_key_exists($key, $arrayValues = array_values(self::$databases))) {

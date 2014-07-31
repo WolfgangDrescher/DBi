@@ -18,20 +18,20 @@ class Query {
 	public static $throwExceptions = true;
 	public static $autoSend = false;
 	
-	private $sql = '';
-	private $duration = 0;
-	private $connection = null;
-	private $result = null;
-	private $statement = null;
-	private $errno = null;
-	private $error = '';
-	private $boundParams = array();
-	private $boundResult = array();
+	private $sql = ''; // SQL string, will do ->parseSql() before execution
+	private $duration = 0; // Duration of the statement in seconds
+	private $connection = null; // Handle to the MySQLi connection
+	private $result = null; // Result of a statement (only with mysqlnd driver)
+	private $statement = null; // Handle to the MySQLi statement
+	private $errno = null; // Error code
+	private $error = ''; // Error message
+	private $boundParams = array(); // Parameters that will repalce `?` in the SQL string with mysqli::bind_param()
+	private $boundResult = array(); // Variables that will be filled with the result row on ->fetchVar()
 	
-	const PARAM_STR = 's';
-	const PARAM_INT = 'i';
-	const PARAM_FLOAT = 'd';
-	const PARAM_BLOB = 'b';
+	const PARAM_STR = 's'; // string
+	const PARAM_INT = 'i'; // integer
+	const PARAM_FLOAT = 'd'; // float (double)
+	const PARAM_BLOB = 'b'; // blob
 	
 	// Returns new self as an object to enable method chaining in one line
 	public static function init($sql = null, $params = null, $connection = null) {

@@ -151,7 +151,7 @@ Set the static variable `Query::$autoSend` to true if you want to execute a stat
 	$stmt = new Query($sqlNamedParams, array('limit' => 1, 'email' => $email));
 	$stmt = Query::init($sqlParams, array($email, 1));
 
-Get the duration of a statement with `->getDuration()` (in seconds). You can set the number of decimal points as an argument.
+Get the duration of a statement with `->getDuration()` (in milliseconds). You can set the number of decimal points as an argument.
 
 	echo $stmt->getDuration(5); // echo's seconds
 

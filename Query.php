@@ -19,7 +19,7 @@ class Query {
 	public static $autoSend = false;
 	
 	private $sql = ''; // SQL string, will do ->parseSql() before execution
-	private $duration = 0; // Duration of the statement in seconds
+	private $duration = 0; // Duration of the statement in milliseconds
 	private $connection = null; // Handle to the MySQLi connection
 	private $result = null; // Result of a statement (only with mysqlnd driver)
 	private $statement = null; // Handle to the MySQLi statement
@@ -77,7 +77,7 @@ class Query {
 			}
 		}
 		echo '		<div>Affected rows: '.$this->rows()."</div>\n";
-		echo '		<div>Duration: '.($this->getDuration(7) * 1000)." milliseconds</div>\n";
+		echo '		<div>Duration: '.$this->getDuration(3)." milliseconds</div>\n";
 		echo '		<div>Affected tables: <code>'.implode('</code>, <code>', $tables)."</code></div>\n";
 		echo '	</div>'."\n";
 		if($this->rows() > 0) {
@@ -119,12 +119,13 @@ class Query {
 		return $this;
 	}
 	
-	public function getDuration($decimals = null) {
-		return $decimals === null ? $this->duration : number_format($this->duration, $decimals);
+	public function getDuration($decimals = null, $inSeconds = false) {
+		$duration = $inSeconds === true ? ($this->duration / 1000) : $this->duration;
+		return $decimals === null ? $duration : number_format($duration, $decimals);
 	}
 	
 	private function setDuration($duration) {
-		$this->duration = $duration;
+		$this->duration = floatval($duration);
 	}
 	
 	public function getResult() {
@@ -378,7 +379,7 @@ class Query {
 			}
 			$timestart = microtime(true);
 			$this->getStatement()->execute();
-			$this->setDuration(microtime(true) - $timestart);
+			$this->setDuration((microtime(true) - $timestart) * 1000);
 			if(extension_loaded('mysqlnd') AND method_exists($this->getStatement(), 'get_result')) {
 				$this->setResult($this->getStatement()->get_result());
 			}

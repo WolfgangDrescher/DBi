@@ -404,9 +404,9 @@ class Query {
 			$timestart = microtime(true);
 			$this->getStatement()->execute();
 			$this->setDuration((microtime(true) - $timestart) * 1000);
-			if(extension_loaded('mysqlnd') AND method_exists($this->getStatement(), 'get_result')) {
-				$this->setResult($this->getStatement()->get_result());
-			}
+			// if(extension_loaded('mysqlnd') AND method_exists($this->getStatement(), 'get_result')) {
+			// 	$this->setResult($this->getStatement()->get_result());
+			// }
 			$this->getStatement()->store_result(); // needed fot $stmt->num_rows
 			$this->setError($this->getStatement()->error);
 			$this->setErrno($this->getStatement()->errno);

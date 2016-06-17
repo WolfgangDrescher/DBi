@@ -20,17 +20,12 @@ class DBi {
 	private static $currentConnection = null;
 	
 	// Connects to a database with MySQLi
-	public static function connect($host = null, $user = null, $password = null, $dbname = null, $port = null) {
+	public static function connect($server = null, $user = null, $password = null) {
 		try {
-			mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-			$connection = new MySQLi($host, $user, $password, $dbname, $port);
-			$connection->select_db($dbname);
-			if(!($connection->connect_errno === 0)) {
-				throw new DBiException($connection->connect_error, $connection->connect_errno);	
-			} else {
-				return $connection;
-			}
-		} catch (Exception $e) { // catch DBiException and MySQLi_SQL_Exception 
+			$connection = new PDO($server, $user, $password);
+			$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			return $connection;
+		} catch (Exception $e) { // catch DBiException and PDOException 
 			ob_start();
 			echo '<div class="alert alert-danger"><span class="glyphicon glyphicon-warning-sign fa fa-exclamation-triangle"></span> ';
 			echo '<b>Unable to connect to MySQL database</b> (#' . $e->getCode() . ')<br/>';
@@ -88,19 +83,19 @@ class DBi {
 		return (
 			$connection !== null AND
 			gettype($connection) == 'object' AND
-			strtolower(get_class($connection)) == 'mysqli' AND
-			$connection->connect_errno === 0
+			strtolower(get_class($connection)) == 'pdo'
 		) ? true : false;
 	}
 	
 	// Escapes a string with mysqli_real_escape_string
 	public static function escape($var, $connection = null) {
 		if(self::isConnection($connection)) {
-			return $connection->real_escape_string($var);
+			return $connection->quote($var);
 		} elseif(self::isConnection(self::get())) {
-			return self::get()->real_escape_string($var);
+			return self::get()->quote($var);
 		}
 		// at least do something... (throw DBiException)
+		// TODO
 		return mysql_escape_string($var);
 	}
 	

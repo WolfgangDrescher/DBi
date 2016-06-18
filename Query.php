@@ -34,6 +34,10 @@ class Query {
 	const FetchColumn = PDO::FETCH_COLUMN;
 	const FetchClass = PDO::FETCH_CLASS;
 	
+	const DriverMySQL = 'mysql';
+	const DriverSQLite = 'sqlite';
+	
+	
 	private $sql = ''; // SQL string
 	private $duration = 0; // Duration of the statement in milliseconds
 	private $connection = null; // Handle to the PDO connection
@@ -151,6 +155,10 @@ class Query {
 		}
 	}
 	
+	public function getDriver() {
+		return mb_strtolower($this->getConnection()->getAttribute(PDO::ATTR_DRIVER_NAME));
+	}
+	
 	public function getConnection() {
 		return $this->connection;
 	}
@@ -181,7 +189,7 @@ class Query {
 	
 	// Returns the number of rows in a result
 	public function rows() {
-		if(mb_strtolower($this->getConnection()->getAttribute(PDO::ATTR_DRIVER_NAME)) == 'sqlite') {
+		if($this->getDriver() == self::DriverSQLite) {
 			return $this->isError() ? null : count($this->fetchAll());
 		}
 		return $this->isError() ? null : $this->getStatement()->rowCount();
@@ -297,7 +305,7 @@ class Query {
 				echo '	<div class="panel-heading"><span class="glyphicon glyphicon-warning-sign fa fa-bug fa-spin"></span> <b>SQL-Error [#'.$e->getCode().']</b></div>'."\n";
 				echo '	<div class="panel-body">'."\n";
 				echo '		<p>'.$e->getMessage().'</p>'."\n";
-				// echo '		<p>'.$this->getConnection()->getAttribute(PDO::ATTR_DRIVER_NAME).' [#'.$this->getStatement()->errorInfo()[1].']: '.$this->getStatement()->errorInfo()[2].'</p>'."\n";
+				// echo '		<p>'.$this->getDriver().' [#'.$this->getStatement()->errorInfo()[1].']: '.$this->getStatement()->errorInfo()[2].'</p>'."\n";
 				$lines = preg_split('/((\r?\n)|(\r\n?))/', $this->getSql());
 				preg_match('/at line (\d+)$/', $e->getMessage(), $matches);
 				$atLine = isset($matches[1]) ? intval($matches[1]) - 1 : null;

@@ -181,6 +181,9 @@ class Query {
 	
 	// Returns the number of rows in a result
 	public function rows() {
+		if(mb_strtolower($this->getConnection()->getAttribute(PDO::ATTR_DRIVER_NAME)) == 'sqlite') {
+			return $this->isError() ? null : count($this->fetchAll());
+		}
 		return $this->isError() ? null : $this->getStatement()->rowCount();
 	}
 	

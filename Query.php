@@ -38,6 +38,7 @@ class Query {
 	private $duration = 0; // Duration of the statement in milliseconds
 	private $connection = null; // Handle to the PDO connection
 	private $statement = null; // Handle to the PDO statement
+	private $cacheFetchAll = null; // Caches result of fetchAll to use it multiple times
 	
 	
 	// Returns new self as an object to enable method chaining in one line
@@ -214,7 +215,7 @@ class Query {
 	
 	// Returns an array with the complete result
 	public function fetchAll($type = self::FetchAssoc) {
-		return $this->isError() ? false : $this->getStatement()->fetchAll($type);
+		return $this->isError() ? false : ($this->cacheFetchAll ?: $this->cacheFetchAll = $this->getStatement()->fetchAll($type));
 	}
 	
 	// Returns the value of a bound parameter converted to the variable type

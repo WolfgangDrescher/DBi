@@ -140,7 +140,7 @@ Execute statements instantly with `Query::exec()`. This method will always send 
 
 	echo $rows = Query::exec("SELECT * FROM user")->rows();
 
-If you know what you are doing make a statement without parameters or the MySQLi prepare method. **Remember to escape the variables with `DBi::e()`**.
+If you know what you are doing make a statement without parameters or the PDO prepare method. **Remember to escape the variables with `DBi::e()`**.
 
 	$stmt = new Query();
 	$stmt->setSql($sql)->send();
@@ -157,7 +157,7 @@ Get the duration of a statement with `->getDuration()` (in milliseconds). You ca
 
 Set the result pointer of the result stack with `->seek($index)`.
 
-Fetch a result row with `->fetch($mode)`. The default fetching method will be `->fetchAssoc()` or `->fetchVar()` if there are any result parameters bound. `->fetchAssoc()` will return an associative array of the current result row.
+Fetch a result row with `->fetch($mode)`. The default fetching method will be `->fetchObject()`. `->fetchAssoc()` will return an associative array of the current result row.
 
 	$stmt = new Query($sqlNamedParams, array('email' => $email, 'limit' => 1));
 	$stmt->send();
@@ -167,31 +167,13 @@ Fetch a result row with `->fetch($mode)`. The default fetching method will be `-
 		}
 	}
 
-`->fetchRow()` will return a result row as an enumerated array.
-
-Use `->fetchArray()` if you need a combined associative and enumerated array. Pass the string `both` (default), `assoc` or `num` as argument to select the type of the result array.
+`->fetchNum()` will return a result row as an enumerated array.
 
 `->fetchObject()` will return the current row of the result set as an object (default object is `stdClass`).
 
 	class User { /*...*/ }
 	while($row = $stmt->fetchObject('User', array($arg1, $arg2))) {
 		echo '<pre>'.print_r($row, true).'</pre>';
-	}
-
-`->fetchVar()` will set all variables bound with `->bindResult()` to the columns of the current result row.
-
-	$stmt = Query::exec("SELECT id, name, email FROM user");
-	$stmt->bindResult($id, $name, $email);
-	while($stmt->fetch()) {
-		echo "User-ID: $id, Name: $name, E-Mail: $email.";
-	}
-
-Note that `->bindResult(&$a,...&$z)` currently only supports 26 arguments, because I could not find another way to pass references to the class. If you need support for more parameters or want to make it the proper way use the native MySQLi functions for this. See issue #4.
-
-	$stmt = Query::exec("SELECT id, name, email FROM user");
-	$stmt->getStatement()->bind_result($id, $name, $email);
-	while($stmt->getStatement()->fetch()) {
-		echo "User-ID: $id, Name: $name, E-Mail: $email.";
 	}
 
 The method `->fetchAll()` will return an array with the complete result.
@@ -201,4 +183,4 @@ Get the whole result as a JSON string with `->getJSON()`.
 Thanks for using
 ----------------
 
-Contribute to this repository and help to improve this framework by [fixing issues](https://github.com/WolfgangDrescher/MySQLi/issues) and commenting them.
+Contribute to this repository and help to improve this framework by [fixing issues](https://github.com/WolfgangDrescher/DBi/issues) and commenting them.

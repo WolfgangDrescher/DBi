@@ -211,14 +211,6 @@ class Query {
 		return $this->fetch(self::FetchNum);
 	}
 	
-	// Returns the current row as an array (associative, enumerated or both)
-	public function fetchArray($type = self::FetchBoth) {
-		if(!in_array($type, array(self::FetchNum, self::FetchAssoc, self::FetchBoth))) {
-			$type = self::FetchBoth;
-		}
-		return $this->getStatement()->fetch($type);
-	}
-	
 	// Returns the current row of a result set as an object
 	public function fetchObject($className = 'stdClass', $classParams = array()) {
 		return $this->isError() ? false : (method_exists($className, '__construct') ? $this->getStatement()->fetchObject($className, $classParams) : $this->getStatement()->fetchObject($className));

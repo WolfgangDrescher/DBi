@@ -4,7 +4,7 @@
 ---
 DBi.php
 Wolfgang Drescher - wolfgangdrescher.ch
-This class allows you to connect to a MySQL database with the PHP MySQLi class
+This class allows you to connect to a database with the PHP PDO class
 and handles multiple connections.
 ...
 */
@@ -19,7 +19,7 @@ class DBi {
 	private static $databases = array();
 	private static $currentConnection = null;
 	
-	// Connects to a database with MySQLi
+	// Connects to a database with PDO
 	public static function connect($dsn = null, $user = null, $password = null) {
 		try {
 			$connection = new PDO($dsn, $user, $password);
@@ -28,7 +28,7 @@ class DBi {
 		} catch (Exception $e) { // catch DBiException and PDOException 
 			ob_start();
 			echo '<div class="alert alert-danger"><span class="glyphicon glyphicon-warning-sign fa fa-exclamation-triangle"></span> ';
-			echo '<b>Unable to connect to MySQL database</b> (#' . $e->getCode() . ')<br/>';
+			echo '<b>Unable to connect with the database</b> (#' . $e->getCode() . ')<br/>';
 			echo '<i>' . $e->getMessage() . '</i>';
 			echo '</div>';
 			die(ob_get_clean());
@@ -78,7 +78,7 @@ class DBi {
 		return null;
 	}
 	
-	// Checks if a connection is a valid MySQL connection
+	// Checks if a connection is a valid PDO connection
 	public static function isConnection($connection) {
 		return (
 			$connection !== null AND
@@ -87,16 +87,14 @@ class DBi {
 		) ? true : false;
 	}
 	
-	// Escapes a string with mysqli_real_escape_string
+	// Escapes a string with PDO::quote()
 	public static function escape($var, $connection = null) {
 		if(self::isConnection($connection)) {
 			return $connection->quote($var);
 		} elseif(self::isConnection(self::get())) {
 			return self::get()->quote($var);
 		}
-		// at least do something... (throw DBiException)
-		// TODO
-		return mysql_escape_string($var);
+		return false;
 	}
 	
 	// Shortcut for DBi::escape()

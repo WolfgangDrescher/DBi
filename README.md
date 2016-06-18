@@ -1,7 +1,7 @@
-MySQLi
-======
+DBi
+===
 
-This framework allows to handle multiple MySQLi connections and to send queries with prepared statements and named parameters.
+This framework allows to handle multiple PDO connections and to send queries with prepared statements and named parameters.
 
 — [Wolfgang Drescher](http://wolfgangdrescher.ch/)
 
@@ -20,7 +20,6 @@ Requirements
 
 - A server running at least PHP version 5.3.
 - Result dumps and error messages are formated with [Bootstrap](http://getbootstrap.com/).
-- Optional: if you want to use the functions of [mysqli_result](http://php.net/manual/de/class.mysqli-result.php) the MySQL Native Driver (mysqlnd) has to be installed.
 
 License
 -------
@@ -47,19 +46,19 @@ I recommend the setting `Query::$throwExceptions` to `false` in a productive env
 DBi.php
 -------
 
-Connect to a MySQL database with `DBi::connect()`. This method returns an object which represents the connection to a MySQL Server.
-
-	$handle = DBi::connect($host, 'root', 'root', 'klavier.dev');
+Connect to a database with `DBi::connect()`. This method returns an object which represents the PDO connection to a SQL server.
+	
+	$handle = DBi::connect('mysql:host=localhost;dbname=cms;', 'root', 'root');
 
 You can add a connection to the DBi class with `DBi::add()`. If the variable `DBi::$autoSelect` is set to true (default) `DBi::add()` will automatically set the passed connection as the currently used connection.
 
-	DBi::add(DBi::connect($host, $user, $password, $dbname));
+	DBi::add(DBi::connect($server, $user, $password));
 
 Multiple connections at the same time are possible. Set the current connection with `DBi::set($key)` and use the same key as second argument in `DBi::add()`.
 
 	DBi::$autoSelect = false;
-	DBi::add(DBi::connect($host, $user, $password, $dbname), 'live');
-	DBi::add(DBi::connect($host, $user, $password, $dbname), 'debug');
+	DBi::add(DBi::connect($server, $user, $password), 'live');
+	DBi::add(DBi::connect($server, $user, $password), 'debug');
 	DBi::set('live');
 	// do some stuff in the live database
 	DBi::set('debug');
@@ -80,7 +79,7 @@ Use SQL strings like these examples:
 	$sql = "SELECT * FROM user WHERE email = '".DBi::e($email)."' LIMIT ".intval($limit);
 	$insertSql = "INSERT INTO user SET email = :email";
 
-However I recommend **always** using prepared statements like `$sqlNamedParams` and `$sqlParams`. But if you know what you are doing use `DBi::escape($str[, $connection])` or its shortcut `DBi::e()` to `mysqli_real_escape_string`. You can also write your own function for escaping:
+However I recommend **always** using prepared statements like `$sqlNamedParams` and `$sqlParams`. But if you know what you are doing use `DBi::escape($str[, $connection])` or its shortcut `DBi::e()` to escape a sql string. You can also write your own function for escaping:
 
 	function e() {
 		return call_user_func_array('DBi::escape', func_get_args());
@@ -92,7 +91,7 @@ Use `->prepare()` to set the SQL string. Bind named parameters as array with `->
 	$stmt->prepare($sqlNamedParams);
 	$stmt->bindParams(array(
 		':limit' => 1,
-		'email' => $email
+		'email' => $email // colon automatically added by the class
 	));
 	$stmt->send();
 
@@ -100,7 +99,7 @@ Display the result of a query as table by echoing the query object.
 
 	echo $stmt;
 
-Set the connection for a single statement with `->setConnection()`.
+Set the connection for a single statement with `->setConnection()`. Remember to always set the connection at the very beginning directly after creating the Query class object.
 
 	$stmt->setConnection(DBi::get('debug'));
 
@@ -116,11 +115,12 @@ The SQL string can also be passed as first argument of `new Query($sql)`. Bind p
 	$stmt = new Query($sqlParams);
 	$stmt->bindParams($email, 1);
 
-Bind a single parameter with `->bindParam()`. The first argument is the key of the named parameter in the SQL string, the second is the value, and the optional third will set the type (`Query::PARAM_STR`, `Query::PARAM_INT`, `Query::PARAM_FLOAT` and `Query::PARAM_BLOB`). If the third parameter is not set the method will autodetect the value's type.
+Bind a single parameter with `->bindParam()`. The first argument is the key of the named parameter in the SQL string, the second is the value, and the optional third will set the type (`Query::ParamStr`, `Query::ParamInt`, `Query::ParamFloat` and `Query::ParamLOB`). If the third parameter is not set the method will autodetect the value's type.
 
-	$stmt->bindParam('email', $email, Query::PARAM_STR);
-	$stmt->bindParam(':limit', 1); // autodetects type Query::PARAM_INT
-	// $stmt->bindParam(':file', $_FILES['img']['tmp_name'], Query::PARAM_BLOB);
+	$stmt->bindParam('email', $email, Query::ParamStr);
+	$stmt->bindParam(':limit', 1); // autodetects type Query::ParamInt
+	// $fp = fopen($_FILES['file']['tmp_name'], 'rb');
+	// $stmt->bindParam(':file', $fp, Query::ParamLOB);
 
 Named parameters can also be bound as an array argument of `->send()`.
 

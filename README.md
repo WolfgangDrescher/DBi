@@ -52,13 +52,13 @@ Connect to a database with `DBi::connect()`. This method returns an object which
 
 You can add a connection to the DBi class with `DBi::add()`. If the variable `DBi::$autoSelect` is set to true (default) `DBi::add()` will automatically set the passed connection as the currently used connection.
 
-	DBi::add(DBi::connect($server, $user, $password));
+	DBi::add(DBi::connect($dsn, $user, $password));
 
 Multiple connections at the same time are possible. Set the current connection with `DBi::set($key)` and use the same key as second argument in `DBi::add()`.
 
 	DBi::$autoSelect = false;
-	DBi::add(DBi::connect($server, $user, $password), 'live');
-	DBi::add(DBi::connect($server, $user, $password), 'debug');
+	DBi::add(DBi::connect($dsn, $user, $password), 'live');
+	DBi::add(DBi::connect($dsn, $user, $password), 'debug');
 	DBi::set('live');
 	// do some stuff in the live database
 	DBi::set('debug');

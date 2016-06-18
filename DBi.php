@@ -20,9 +20,9 @@ class DBi {
 	private static $currentConnection = null;
 	
 	// Connects to a database with MySQLi
-	public static function connect($server = null, $user = null, $password = null) {
+	public static function connect($dsn = null, $user = null, $password = null) {
 		try {
-			$connection = new PDO($server, $user, $password);
+			$connection = new PDO($dsn, $user, $password);
 			$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			return $connection;
 		} catch (Exception $e) { // catch DBiException and PDOException 

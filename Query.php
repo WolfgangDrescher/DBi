@@ -18,21 +18,21 @@ class Query {
 	public static $throwExceptions = true;
 	public static $autoSend = false;
 	
-	const ParamBool = PDO::PARAM_BOOL; // bool
-	const ParamNull = PDO::PARAM_NULL; // null
-	const ParamStr = PDO::PARAM_STR; // string
-	const ParamInt = PDO::PARAM_INT; // integer
-	const ParamFloat = self::ParamStr; // float (in PDO treated as a string)
-	const ParamLOB = PDO::PARAM_LOB; // blob
+	const ParamBool = PDO::PARAM_BOOL; // bool (5)
+	const ParamNull = PDO::PARAM_NULL; // null (0)
+	const ParamStr = PDO::PARAM_STR; // string (2)
+	const ParamInt = PDO::PARAM_INT; // integer (1)
+	const ParamFloat = self::ParamStr; // floa, in PDO treated as a string (2)
+	const ParamLOB = PDO::PARAM_LOB; // blob (3)
 	
-	const FetchAssoc = PDO::FETCH_ASSOC;
-	const FetchNum = PDO::FETCH_NUM;
-	const FetchBoth = PDO::FETCH_BOTH;
-	const FetchLazy = PDO::FETCH_LAZY;
-	const FetchNamed = PDO::FETCH_NAMED;
-	const FetchObj = PDO::FETCH_OBJ;
-	const FetchColumn = PDO::FETCH_COLUMN;
-	const FetchClass = PDO::FETCH_CLASS;
+	const FetchAssoc = PDO::FETCH_ASSOC; // 2
+	const FetchNum = PDO::FETCH_NUM; // 3
+	const FetchBoth = PDO::FETCH_BOTH; // 4
+	const FetchLazy = PDO::FETCH_LAZY; // 1
+	const FetchNamed = PDO::FETCH_NAMED; // 11
+	const FetchObj = PDO::FETCH_OBJ; // 5
+	const FetchColumn = PDO::FETCH_COLUMN; // 7
+	const FetchClass = PDO::FETCH_CLASS; // 8
 	
 	const DriverMySQL = 'mysql';
 	const DriverSQLite = 'sqlite';
